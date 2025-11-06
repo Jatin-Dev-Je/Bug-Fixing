@@ -54,13 +54,13 @@ npm run preview
 ## Deploy
 
 - Vercel
-   - Repo: push to GitHub (this project is in `Bug-Fixing/frontend`).
-   - In Vercel: New Project → Import repo → Framework: Vite (auto) → Root directory: `frontend`.
+   - Repo: push to GitHub (repo root is the app itself).
+   - In Vercel: New Project → Import repo → Framework: Vite (auto) → Root directory: repository root (leave empty).
    - Builds: uses `vercel.json` (build: `npm run build`, output: `dist`).
    - Set Project Settings → Build & Output → Output Directory = `dist`.
 
 - Netlify
-   - New site from Git → pick repo → Base directory: `frontend` → Build command: `npm run build` → Publish directory: `dist`.
+   - New site from Git → pick repo → Base directory: repository root (leave empty) → Build command: `npm run build` → Publish directory: `dist`.
    - SPA fallback is pre-configured via `netlify.toml` and `public/_redirects`.
 
 Once deployed, share the live URL (e.g., https://yourname-taskglitch.vercel.app).
