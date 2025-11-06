@@ -54,7 +54,7 @@ npm run preview
 ## Deploy
 
 - Vercel
-   - Repo: push to GitHub (this project is in `Bug-Fixing/frontent`).
+   - Repo: push to GitHub (this project is in `Bug-Fixing/frontend`).
    - In Vercel: New Project → Import repo → Framework: Vite (auto) → Root directory: `frontend`.
    - Builds: uses `vercel.json` (build: `npm run build`, output: `dist`).
    - Set Project Settings → Build & Output → Output Directory = `dist`.
