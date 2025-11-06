@@ -1,75 +1,64 @@
-# React + TypeScript + Vite
+# Task ROI Manager (Bug Fixes Challenge)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A responsive Task Management app for sales teams to track ROI. Built with React + TypeScript + Vite. No backend; data persists in LocalStorage. CSV import/export included.
 
-Currently, two official plugins are available:
+## Features
+- Add, edit, delete tasks (with view dialog)
+- Undo delete via snackbar
+- Search and filter by priority and status
+- ROI calculation: Revenue ÷ Time Taken
+- Sort by ROI desc, then Priority (High > Medium > Low), then Title asc (stable)
+- Summary: Total Revenue, Efficiency, Average ROI, Performance Grade
+- CSV import/export
+- LocalStorage persistence
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Bug Fixes Implemented
+1) Double Fetch on page load
+   - Guarded data initialization with a ref in a mount-only effect to be StrictMode-safe (runs once in dev/prod).
 
-## React Compiler
+2) Undo Snackbar state leak
+   - Clears lastDeleted task and snackbar flag on close (auto or manual) to prevent phantom restores.
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+3) Unstable sorting (ROI ties)
+   - Added deterministic tie-breaker by Title asc, then createdAt desc.
 
-Note: This will impact Vite dev & build performances.
+4) Double Dialog opening (bubbling)
+   - Stopped event propagation on Edit/Delete buttons; row click opens only View dialog.
 
-## Expanding the ESLint configuration
+5) ROI validation/formatting issues
+   - Safe ROI: if time ≤ 0 or invalid -> ROI = 0 and displayed as "—" in readouts. No NaN/Infinity.
+   - Consistent formatting (2 decimals) and currency formatting with Intl.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Tech/Code Quality
+- TypeScript strict mode, type-only imports (verbatimModuleSyntax compliant)
+- Pure functions for numeric logic (`src/utils/number.ts`)
+- Domain types in `src/types.ts`
+- Accessible modals and semantics; responsive layout
+- ESLint configured; Vite build verified
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Run locally
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```powershell
+cd frontend
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Build
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```powershell
+npm run build
+npm run preview
 ```
+
+## Deploy
+
+- Vercel/Netlify: deploy the `frontend` directory as a static site. The `dist` folder is produced by `npm run build`.
+
+## Sorting Logic
+
+1) ROI desc
+2) Priority desc (High > Medium > Low)
+3) Title asc (stable)
+4) createdAt desc as a final tiebreaker
+
