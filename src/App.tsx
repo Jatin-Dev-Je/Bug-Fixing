@@ -370,17 +370,83 @@ function App() {
 }
 
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
+  const backdropRef = useRef<HTMLDivElement | null>(null)
+  const modalRef = useRef<HTMLDivElement | null>(null)
+  const prevFocusRef = useRef<HTMLElement | null>(null)
+  const headingId = useMemo(() => `modal-title-${Math.random().toString(36).slice(2, 8)}`,[ ])
+
+  useEffect(() => {
+    // Save and move focus inside modal
+    prevFocusRef.current = (document.activeElement as HTMLElement) || null
+    const focusable = getFocusable(modalRef.current)
+    ;(focusable[0] as HTMLElement | undefined)?.focus()
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        onClose()
+        return
+      }
+      if (e.key === 'Tab') {
+        const nodes = getFocusable(modalRef.current)
+        if (nodes.length === 0) return
+        const first = nodes[0] as HTMLElement
+        const last = nodes[nodes.length - 1] as HTMLElement
+        const active = document.activeElement as HTMLElement
+        if (e.shiftKey) {
+          if (active === first || !modalRef.current?.contains(active)) {
+            e.preventDefault()
+            last.focus()
+          }
+        } else {
+          if (active === last) {
+            e.preventDefault()
+            first.focus()
+          }
+        }
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      // Restore focus to the trigger element if possible
+      prevFocusRef.current?.focus()
+    }
+  }, [onClose])
+
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="modal-backdrop"
+      ref={backdropRef}
+      onClick={onClose}
+      aria-hidden={false}
+    >
+      <div
+        className="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={headingId}
+        onClick={(e) => e.stopPropagation()}
+        ref={modalRef}
+      >
         <div className="modal-head">
-          <h3>{title}</h3>
+          <h3 id={headingId}>{title}</h3>
           <button className="icon" onClick={onClose} aria-label="Close">✕</button>
         </div>
         <div className="modal-body">{children}</div>
       </div>
     </div>
   )
+}
+
+function getFocusable(root: HTMLElement | null): Element[] {
+  if (!root) return []
+  const selectors = [
+    'a[href]','button:not([disabled])','textarea:not([disabled])','input:not([disabled])','select:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])'
+  ]
+  return Array.from(root.querySelectorAll(selectors.join(',')))
 }
 
 function TaskView({ task }: { task: Task }) {
