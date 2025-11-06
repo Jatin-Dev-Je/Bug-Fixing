@@ -272,6 +272,7 @@ function App() {
               e.currentTarget.value = ''
             }} />
           </label>
+          <ThemeToggle />
         </div>
       </header>
 
@@ -603,6 +604,26 @@ function splitCsvLine(line: string): string[] {
   }
   res.push(cur)
   return res.map((s) => s.trim())
+}
+
+function ThemeToggle() {
+  const storageKey = 'taskapp.theme'
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const stored = localStorage.getItem(storageKey) as 'light' | 'dark' | null
+    if (stored === 'light' || stored === 'dark') return stored
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+    return prefersDark ? 'dark' : 'light'
+  })
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem(storageKey, theme)
+  }, [theme])
+  const toggle = () => setTheme((t) => (t === 'light' ? 'dark' : 'light'))
+  return (
+    <button className="btn theme-toggle" onClick={toggle} aria-label="Toggle theme">
+      {theme === 'dark' ? '🌙 Dark' : '☀️ Light'}
+    </button>
+  )
 }
 
 export default App
